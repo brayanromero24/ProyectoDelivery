@@ -94,37 +94,6 @@ def evaluar_tiempos_vehiculos(distancia_km):
     return resultados
 
 
-# ORDENAMIENTO DE TRAMOS POR KILOMETRAJE
-def ordenamiento_burbuja_tramos(lista_tramos):
-    lista = list(lista_tramos)
-    n = len(lista)
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if lista[j]["kilometros"] > lista[j + 1]["kilometros"]:
-                lista[j], lista[j + 1] = lista[j + 1], lista[j]
-    return lista
-
-def ordenamiento_quicksort_tramos(lista_tramos):
-    if len(lista_tramos) <= 1:
-        return lista_tramos
-    pivote = lista_tramos[len(lista_tramos) // 2]["kilometros"]
-    menores = [x for x in lista_tramos if x["kilometros"] < pivote]
-    iguales = [x for x in lista_tramos if x["kilometros"] == pivote]
-    mayores = [x for x in lista_tramos if x["kilometros"] > pivote]
-    return ordenamiento_quicksort_tramos(menores) + iguales + ordenamiento_quicksort_tramos(mayores)
-
-
-#  CAMBIO DE MONEDA  PARA VUELTOS DE DELIVERY
-def cambio_monedas_delivery(denominaciones, monto):
-    denominaciones_ord = sorted(denominaciones, reverse=True)
-    resultado = []
-    monto_restante = monto
-    for moneda in denominaciones_ord:
-        cantidad = monto_restante // moneda
-        monto_restante = monto_restante % moneda
-        if cantidad > 0:
-            resultado.append({"denominacion": moneda, "cantidad": cantidad})
-    return resultado, monto_restante
 
 #  CÁLCULO DE RUTA Y TIEMPO PUNTO A PUNTO
 def calcular_entrega_directa(origen, destino, km, vehiculo_nombre):
