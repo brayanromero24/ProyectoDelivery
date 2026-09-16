@@ -16,7 +16,6 @@ from algoritmos_delivery import (
     calcular_matriz_distancias,
     resolver_fuerza_bruta,
     resolver_greedy,
-    evaluar_tiempos_vehiculos,
     calcular_entrega_directa
 )
 
@@ -26,6 +25,12 @@ from rutas_tramo import (
     ordenamiento_burbuja_tramos,
     ordenamiento_quicksort_tramos,
     cambio_monedas_delivery
+)
+
+from vehiculos_metodos import (
+    VEHICULOS,
+    calcular_tiempo_viaje,
+    evaluar_vehiculos_para_distancia
 )
 
 # Variables globales iniciales
@@ -111,10 +116,24 @@ def cotizar_envio_punto_a_punto():
         print("3. Auto (30 km/h)")
         op_v = input("Seleccione una opcion (1-3): ").strip()
         
-        vehiculos_map = {"1": "Bicicleta", "2": "Moto", "3": "Auto"}
-        v_seleccionado = vehiculos_map.get(op_v, "Moto")
+        # Diccionario con velocidades configuradas
+        velocidades_map = {"1": 15.0, "2": 40.0, "3": 30.0}
+        nombres_map = {"1": "Bicicleta", "2": "Moto", "3": "Auto"}
         
-        ultima_cotizacion_delivery = calcular_entrega_directa(origen, destino, km, v_seleccionado)
+        v_nombre = nombres_map.get(op_v, "Moto")
+        v_velocidad = velocidades_map.get(op_v, 40.0)
+        
+        # AQUÍ SE UTILIZA calcular_tiempo_viaje:
+        t_calculado = calcular_tiempo_viaje(km, v_velocidad)
+        
+        ultima_cotizacion_delivery = {
+            "origen": origen,
+            "destino": destino,
+            "kilometros": km,
+            "vehiculo": v_nombre,
+            "velocidad_kmh": v_velocidad,
+            "tiempo_minutos": t_calculado
+        }
         
         print("\n============================================================")
         print("            RESUMEN DE RUTA Y TIEMPO ESTIMADO")
@@ -127,7 +146,7 @@ def cotizar_envio_punto_a_punto():
         
     except ValueError:
         print("Error: Ingrese un numero valido para la distancia.")
-
+        
 def menu():
     global puntos_delivery, tramos_kilometros, matriz_distancias
     global ruta_fb, dist_fb, t_fb
@@ -206,13 +225,12 @@ def menu():
                 
         elif opcion == "6":
             distancia_total = calcular_distancia_total(tramos_kilometros)
-            evaluacion_vehiculos = evaluar_tiempos_vehiculos(distancia_total)
+            evaluacion_vehiculos = evaluar_vehiculos_para_distancia(distancia_total)
             print(f"\n--- TIEMPOS PARA RECORRER {distancia_total:.2f} KM TOTALES ---")
             for ev in evaluacion_vehiculos:
                 print(f"   Vehiculo: {ev['vehiculo']:<10} | Vel: {ev['velocidad_kmh']} km/h | Tiempo: {ev['tiempo_minutos']} min")
             rapido = min(evaluacion_vehiculos, key=lambda x: x['tiempo_minutos'])
             print(f"\nEl vehiculo mas rapido es: {rapido['vehiculo']}")
-            
         elif opcion == "7":
             try:
                 pago = float(input("\nMonto entregado por el cliente: "))

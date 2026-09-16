@@ -10,6 +10,7 @@ BIBLIOTECA DE ALGORITMOS Y HERRAMIENTAS DE OPTIMIZACIÓN DE RUTAS
 """
 import math
 import itertools
+from vehiculos_metodos import calcular_tiempo_viaje
 
 #  MATRIZ Y TSP POR COORDENADAS
 def calcular_matriz_distancias(puntos):
@@ -74,38 +75,13 @@ def resolver_greedy(matriz):
     return ruta, round(distancia_total, 2)
 
 
-# TIEMPOS POR VEHÍCULO
-VEHICULOS_DISPONIBLES = [
-    {"tipo": "Bicicleta", "velocidad_kmh": 15.0},
-    {"tipo": "Moto",      "velocidad_kmh": 40.0},
-    {"tipo": "Auto",      "velocidad_kmh": 30.0}
-]
-
-def evaluar_tiempos_vehiculos(distancia_km):
-    resultados = []
-    for v in VEHICULOS_DISPONIBLES:
-        tiempo_horas = distancia_km / v["velocidad_kmh"]
-        tiempo_minutos = tiempo_horas * 60.0
-        resultados.append({
-            "vehiculo": v["tipo"],
-            "velocidad_kmh": v["velocidad_kmh"],
-            "tiempo_minutos": round(tiempo_minutos, 2)
-        })
-    return resultados
-
-
-
 #  CÁLCULO DE RUTA Y TIEMPO PUNTO A PUNTO
 def calcular_entrega_directa(origen, destino, km, vehiculo_nombre):
-    velocidades = {
-        "Bicicleta": 15.0,
-        "Moto": 40.0,
-        "Auto": 30.0
-    }
-    
+    velocidades = {"Bicicleta": 15.0, "Moto": 40.0, "Auto": 30.0}
     vel = velocidades.get(vehiculo_nombre, 30.0)
-    tiempo_horas = km / vel
-    tiempo_minutos = tiempo_horas * 60.0
+    
+    # En lugar de km / vel * 60:
+    tiempo_minutos = calcular_tiempo_viaje(km, vel)
     
     return {
         "origen": origen,
@@ -113,5 +89,5 @@ def calcular_entrega_directa(origen, destino, km, vehiculo_nombre):
         "kilometros": km,
         "vehiculo": vehiculo_nombre,
         "velocidad_kmh": vel,
-        "tiempo_minutos": round(tiempo_minutos, 2)
+        "tiempo_minutos": tiempo_minutos
     }
