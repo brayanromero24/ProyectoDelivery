@@ -15,9 +15,9 @@ from concurrent.futures import ProcessPoolExecutor
 # ==============================================================================
 def resolver_backtracking(matriz):
     """
-    Resuelve el TSP explorando el árbol de decisiones en profundidad (Backtracking).
-    Aplica poda por cota superior: interrumpe cualquier rama cuya distancia acumulada
-    sea mayor o igual a la mejor distancia encontrada hasta el momento.
+    Encuentra la ruta más corta probando diferentes caminos de entrega (Backtracking).
+    Si a mitad de un camino la distancia ya supera a la mejor ruta que teníamos guardada, 
+    cancela ese camino de inmediato para ahorrar tiempo (Poda).
     """
     n = len(matriz)
     if n <= 1:
