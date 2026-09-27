@@ -3,7 +3,7 @@
 """
 Created on Mon Sep  7 19:38:58 2026
 
-@author: jairh
+@author: Grupo 5
 """
 
 """
