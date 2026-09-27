@@ -11,7 +11,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 
 # ==============================================================================
-# 1. BACKTRACKING CON PODA (Branch and Bound / Vuelta Atrás)
+# 1. BACKTRACKING CON PODA (Búsqueda paso a paso descartando rutas malas)
 # ==============================================================================
 def resolver_backtracking(matriz):
     """
@@ -58,7 +58,7 @@ def resolver_backtracking(matriz):
 
 
 # ==============================================================================
-# 2. PROGRAMACIÓN DINÁMICA (Algoritmo Held-Karp con Memorización)
+# 2. PROGRAMACIÓN DINÁMICA (Optimización guardando resultados en memoria)
 # ==============================================================================
 def resolver_programacion_dinamica(matriz):
     """
@@ -101,13 +101,12 @@ def resolver_programacion_dinamica(matriz):
 
 
 # ==============================================================================
-# 3. ALGORITMO PROBABILISTA (Simulación Monte Carlo de Tráfico)
+# 3. ALGORITMO PROBABILISTA (Simulación de tráfico con imprevistos)
 # ==============================================================================
 def simular_trafico_monte_carlo(distancia_base_km, velocidad_base_kmh=30.0, num_simulaciones=5000):
     """
-    Algoritmo probabilista basado en simulación Monte Carlo.
-    Modela escenarios de incertidumbre en el tráfico urbano (demoras aleatorias)
-    para calcular el tiempo esperado promedio y los peores/mejores casos.
+    Simula miles de viajes probando diferentes niveles de tráfico aleatorio (hora punta, imprevistos).
+    Permite calcular el tiempo promedio de entrega, así como el mejor y el peor escenario posible.
     """
     if distancia_base_km <= 0:
         return {"tiempo_promedio_min": 0.0, "tiempo_mejor_caso_min": 0.0, "tiempo_peor_caso_min": 0.0}
@@ -131,7 +130,7 @@ def simular_trafico_monte_carlo(distancia_base_km, velocidad_base_kmh=30.0, num_
 
 
 # ==============================================================================
-# 4. ALGORITMO EN PARALELO (Evaluación Multiproceso del TSP)
+# 4. EVALUACIÓN EN PARALELO (Probar varios caminos al mismo tiempo)
 # ==============================================================================
 def _evaluar_subruta_worker(args):
     """
@@ -144,8 +143,8 @@ def _evaluar_subruta_worker(args):
 
 def resolver_tsp_paralelo(matriz):
     """
-    Distribuye la evaluación de las rutas posibles entre múltiples núcleos
-    de la CPU utilizando el módulo ProcessPoolExecutor.
+   Divide la tarea entre todos los 'núcleos' del procesador para probar varios caminos 
+   a la vez en lugar de hacerlo uno por uno.
     """
     import itertools
     n = len(matriz)
