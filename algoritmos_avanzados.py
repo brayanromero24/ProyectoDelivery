@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 MÓDULO DE ALGORITMOS AVANZADOS Y ESTRATEGIAS ESPECIALIZADAS
-Incluye: Backtracking, Programación Dinámica (Held-Karp), 
-Simulación Monte Carlo y Procesamiento Paralelo.
+Incluye: Búsqueda con descarte rápido (Backtracking), Optimización con memoria (Programación Dinámica),
+Simulación de tráfico con imprevistos (Monte Carlo) y Cálculo en varios procesadores (Paralelismo).
 """
 
 import math
