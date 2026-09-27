@@ -7,16 +7,23 @@ Created on Mon Sep  7 19:38:58 2026
 """
 
 """
-PROGRAMA PRINCIPAL DE OPTIMIZACIÓN DE RUTAS DE DELIVERY
+PROGRAMA PRINCIPAL DE OPTIMIZACIÓN DE RUTAS DE DELIVERY (INTEGRADO Y REVISADO)
 """
 import time
 
-# Importaciones desde ambos módulos creados
+# Importaciones desde los módulos creados
 from algoritmos_delivery import (
     calcular_matriz_distancias,
     resolver_fuerza_bruta,
     resolver_greedy,
     calcular_entrega_directa
+)
+
+from algoritmos_avanzados import (
+    resolver_backtracking,
+    resolver_programacion_dinamica,
+    simular_trafico_monte_carlo,
+    resolver_tsp_paralelo
 )
 
 from rutas_tramo import (
@@ -53,14 +60,12 @@ puntos_delivery = list(PUNTOS_INICIALES)
 tramos_kilometros = list(TRAMOS_DIRECTOS)
 matriz_distancias = calcular_matriz_distancias(puntos_delivery)
 
-# Variables globales para el Explorador de Variables de Spyder
-ruta_fb = []
-dist_fb = 0.0
-t_fb = 0.0
-
-ruta_gr = []
-dist_gr = 0.0
-t_gr = 0.0
+# Variables globales de almacenamiento
+ruta_fb, dist_fb, t_fb = [], 0.0, 0.0
+ruta_gr, dist_gr, t_gr = [], 0.0, 0.0
+ruta_bt, dist_bt, t_bt = [], 0.0, 0.0
+ruta_dp, dist_dp, t_dp = [], 0.0, 0.0
+ruta_par, dist_par, t_par = [], 0.0, 0.0
 
 tramos_ordenados = []
 evaluacion_vehiculos = []
@@ -116,14 +121,12 @@ def cotizar_envio_punto_a_punto():
         print("3. Auto (30 km/h)")
         op_v = input("Seleccione una opcion (1-3): ").strip()
         
-        # Diccionario con velocidades configuradas
         velocidades_map = {"1": 15.0, "2": 40.0, "3": 30.0}
         nombres_map = {"1": "Bicicleta", "2": "Moto", "3": "Auto"}
         
         v_nombre = nombres_map.get(op_v, "Moto")
         v_velocidad = velocidades_map.get(op_v, 40.0)
         
-        # AQUÍ SE UTILIZA calcular_tiempo_viaje:
         t_calculado = calcular_tiempo_viaje(km, v_velocidad)
         
         ultima_cotizacion_delivery = {
@@ -146,11 +149,14 @@ def cotizar_envio_punto_a_punto():
         
     except ValueError:
         print("Error: Ingrese un numero valido para la distancia.")
-        
+
 def menu():
     global puntos_delivery, tramos_kilometros, matriz_distancias
     global ruta_fb, dist_fb, t_fb
     global ruta_gr, dist_gr, t_gr
+    global ruta_bt, dist_bt, t_bt
+    global ruta_dp, dist_dp, t_dp
+    global ruta_par, dist_par, t_par
     global tramos_ordenados, evaluacion_vehiculos, desglose_vuelto
 
     while True:
@@ -162,16 +168,17 @@ def menu():
         print("1. Listar puntos de entrega")
         print("2. Agregar nuevo punto de entrega")
         print("3. Mostrar Matriz de Distancias Euclidianas")
-        print("4. Ejecutar TSP - Fuerza Bruta vs Greedy")
+        print("4. Comparativa Completa TSP (Fuerza Bruta, Greedy, Backtracking, DP, Paralelo)")
         print("5. Registrar y Ordenar tramos por kilometraje")
         print("6. Evaluar tiempo por vehiculo en tramos registrados")
-        print("7. Calculadora de Vueltos/Cambio de Pago")
-        print("8. Calcular entrega directa punto a punto")
-        print("9. Restablecer datos predeterminados")
-        print("10. Salir")
+        print("7. Calculadora de Vueltos/Cambio de Pago (Algoritmo Voraz)")
+        print("8. Simulación Monte Carlo de Tráfico (Incertidumbre)")
+        print("9. Calcular entrega directa punto a punto")
+        print("10. Restablecer datos predeterminados")
+        print("11. Salir")
         print("============================================================")
         
-        opcion = input("Selecciona una opcion (1-10): ").strip()
+        opcion = input("Selecciona una opcion (1-11): ").strip()
         
         if opcion == "1":
             print(f"\nPuntos cargados ({len(puntos_delivery)} nodos):")
@@ -189,20 +196,44 @@ def menu():
                 print(f"[{idx}] {valores}")
                 
         elif opcion == "4":
+            print("\n============================================================")
+            print("         EVALUACIÓN Y COMPARATIVA DE ESTRATEGIAS TSP")
+            print("============================================================")
+            
+            # 1. FUERZA BRUTA
             inicio = time.perf_counter()
             ruta_fb, dist_fb = resolver_fuerza_bruta(matriz_distancias)
             t_fb = time.perf_counter() - inicio
+            print(f"1. FUERZA BRUTA     | Dist: {dist_fb:.2f} km | Tiempo: {t_fb:.6f} s | Ruta: {formatear_ruta(ruta_fb)}")
             
+            # 2. GREEDY (VORAZ)
             inicio = time.perf_counter()
             ruta_gr, dist_gr = resolver_greedy(matriz_distancias)
             t_gr = time.perf_counter() - inicio
+            print(f"2. GREEDY (VORAZ)   | Dist: {dist_gr:.2f} km | Tiempo: {t_gr:.6f} s | Ruta: {formatear_ruta(ruta_gr)}")
             
-            print(f"\n--- FUERZA BRUTA ---")
-            print(f"Ruta: {formatear_ruta(ruta_fb)} | Distancia: {dist_fb:.2f} km | Tiempo: {t_fb:.6f} s")
+            # 3. BACKTRACKING CON PODA
+            inicio = time.perf_counter()
+            ruta_bt, dist_bt = resolver_backtracking(matriz_distancias)
+            t_bt = time.perf_counter() - inicio
+            print(f"3. BACKTRACKING     | Dist: {dist_bt:.2f} km | Tiempo: {t_bt:.6f} s | Ruta: {formatear_ruta(ruta_bt)}")
             
-            print(f"\n--- GREEDY (VORAZ) ---")
-            print(f"Ruta: {formatear_ruta(ruta_gr)} | Distancia: {dist_gr:.2f} km | Tiempo: {t_gr:.6f} s")
+            # 4. PROGRAMACIÓN DINÁMICA (HELD-KARP)
+            inicio = time.perf_counter()
+            ruta_dp, dist_dp = resolver_programacion_dinamica(matriz_distancias)
+            t_dp = time.perf_counter() - inicio
+            print(f"4. PROG. DINÁMICA   | Dist: {dist_dp:.2f} km | Tiempo: {t_dp:.6f} s | Ruta: {formatear_ruta(ruta_dp)}")
             
+            # 5. TSP EN PARALELO
+            try:
+                inicio = time.perf_counter()
+                ruta_par, dist_par = resolver_tsp_paralelo(matriz_distancias)
+                t_par = time.perf_counter() - inicio
+                print(f"5. COMPUTA PARALELA | Dist: {dist_par:.2f} km | Tiempo: {t_par:.6f} s | Ruta: {formatear_ruta(ruta_par)}")
+            except Exception as e:
+                print(f"5. COMPUTA PARALELA | No ejecutado por entorno: {e}")
+            print("============================================================")
+
         elif opcion == "5":
             print("\n1. Agregar tramo directo en kilometros")
             print("2. Ordenar tramos actuales de menor a mayor distancia")
@@ -231,6 +262,7 @@ def menu():
                 print(f"   Vehiculo: {ev['vehiculo']:<10} | Vel: {ev['velocidad_kmh']} km/h | Tiempo: {ev['tiempo_minutos']} min")
             rapido = min(evaluacion_vehiculos, key=lambda x: x['tiempo_minutos'])
             print(f"\nEl vehiculo mas rapido es: {rapido['vehiculo']}")
+
         elif opcion == "7":
             try:
                 pago = float(input("\nMonto entregado por el cliente: "))
@@ -245,16 +277,31 @@ def menu():
                         print(f"   Denominacion: {d['denominacion']} -> Cantidad: {d['cantidad']}")
             except ValueError:
                 print("Error: Ingrese un monto valido.")
-                
+
         elif opcion == "8":
-            cotizar_envio_punto_a_punto()
+            print("\n--- SIMULACIÓN MONTE CARLO DE TRÁFICO URBANO ---")
+            try:
+                dist_sim = float(input("Ingrese la distancia a simular en km (o 0 para usar la ruta optima): "))
+                if dist_sim <= 0:
+                    dist_sim = dist_fb if dist_fb > 0 else 25.15
+                
+                res_mc = simular_trafico_monte_carlo(dist_sim)
+                print(f"\nResultados de 5,000 simulaciones para {dist_sim:.2f} km:")
+                print(f"  - Tiempo Promedio Esperado: {res_mc['tiempo_promedio_min']} min")
+                print(f"  - Mejor Caso (Trafico Fluido): {res_mc['tiempo_mejor_caso_min']} min")
+                print(f"  - Peor Caso (Hora Punta): {res_mc['tiempo_peor_caso_min']} min")
+            except ValueError:
+                print("Error: Ingrese una distancia valida.")
 
         elif opcion == "9":
+            cotizar_envio_punto_a_punto()
+
+        elif opcion == "10":
             puntos_delivery = list(PUNTOS_INICIALES)
             tramos_kilometros = list(TRAMOS_DIRECTOS)
             print("\nDatos restablecidos.")
             
-        elif opcion == "10":
+        elif opcion == "11":
             print("\nPrograma finalizado.")
             break
 
