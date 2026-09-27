@@ -62,9 +62,9 @@ def resolver_backtracking(matriz):
 # ==============================================================================
 def resolver_programacion_dinamica(matriz):
     """
-    Resuelve el TSP aplicando el Principio de Optimalidad de Bellman mediante memorización.
-    Usa máscaras de bits (bitmask) para representar el subconjunto de nodos visitados.
-    Reduce la complejidad de O(n!) a O(n^2 * 2^n).
+    Resuelve el problema de rutas guardando en memoria los caminos ya calculados para no repetirlos.
+    Usa una técnica eficiente para saber qué clientes ya fueron visitados y reduce enormemente
+    el tiempo de cómputo frente a la Fuerza Bruta.
     """
     n = len(matriz)
     if n <= 1:
